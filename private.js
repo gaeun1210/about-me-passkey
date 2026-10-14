@@ -238,16 +238,39 @@
       if (r.status === 200) await refresh(); else m.set(r.data.message, 'bad');
     } }, '항목 추가');
 
-    const items = priv.data.items.map((it) => h('article', { class: 'pv-item' },
-      h('span', { class: 'pv-kind' }, it.kind || '메모'),
-      h('h4', {}, it.title),
-      h('p', {}, it.body),
-      h('span', { class: 'pv-id', title: '검증 도구에서 "다른 계정 항목 ID"로 쓸 수 있어요' }, 'ID ' + it.id),
-      h('div', {}, h('button', { class: 'pv-btn danger', type: 'button', onclick: async () => {
-        if (!confirm('이 항목을 지울까요?')) return;
-        const r = await api('DELETE', '/api/private?item=' + encodeURIComponent(it.id), null, { label: '비공개 항목 삭제' });
-        if (r.status === 200) await refresh(); else m.set(r.data.message, 'bad');
-      } }, '지우기'))));
+    const items = priv.data.items.map((it) => {
+      const card = h('article', { class: 'pv-item' });
+      const showView = () => card.replaceChildren(
+        h('span', { class: 'pv-kind' }, it.kind || '메모'),
+        h('h4', {}, it.title),
+        h('p', {}, it.body),
+        h('span', { class: 'pv-id', title: '검증 도구에서 "다른 계정 항목 ID"로 쓸 수 있어요' }, 'ID ' + it.id),
+        h('div', { class: 'pv-row' },
+          h('button', { class: 'pv-btn small ghost', type: 'button', onclick: showEdit }, '고치기'),
+          h('button', { class: 'pv-btn danger', type: 'button', onclick: async () => {
+            if (!confirm('이 항목을 지울까요?')) return;
+            const r = await api('DELETE', '/api/private?item=' + encodeURIComponent(it.id), null, { label: '비공개 항목 삭제' });
+            if (r.status === 200) await refresh(); else m.set(r.data.message, 'bad');
+          } }, '지우기')));
+      function showEdit() {
+        const t = h('input', { type: 'text', maxlength: '60', value: it.title, 'aria-label': '제목 고치기' });
+        const b = h('textarea', { maxlength: '500', 'aria-label': '내용 고치기' }); b.value = it.body || '';
+        const save = h('button', { class: 'pv-btn small', type: 'button', onclick: async () => {
+          save.disabled = true;
+          const r = await api('PATCH', '/api/private?item=' + encodeURIComponent(it.id), { title: t.value, body: b.value }, { label: '비공개 항목 고치기' });
+          save.disabled = false;
+          if (r.status === 200) await refresh(); else m.set(r.data.message, 'bad');
+        } }, '저장');
+        card.replaceChildren(
+          h('span', { class: 'pv-kind' }, it.kind || '메모'),
+          h('label', { class: 'pv-field' }, h('span', {}, '제목'), t),
+          h('label', { class: 'pv-field' }, h('span', {}, '내용'), b),
+          h('div', { class: 'pv-row' }, save, h('button', { class: 'pv-btn small ghost', type: 'button', onclick: showView }, '취소')));
+        t.focus();
+      }
+      showView();
+      return card;
+    });
 
     // 패스키 목록
     const list = keysRes.data.passkeys || [];

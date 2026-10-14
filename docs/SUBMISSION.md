@@ -57,7 +57,7 @@
 거절을 만들어 내는 소스 위치:
 
 - 로그인 안 함 → 401: `lib/http.js` L96
-- 다른 계정 항목 읽기·지우기 → 403: `api/private.js` L24, L55
+- 다른 계정 항목 읽기·고치기·지우기 → 403: `api/private.js` L24, L56, L70
 - 주소·본문의 다른 계정 이름 무시: `api/private.js` L32, L48 (누구의 자료인지는 세션으로만 정함)
 - 다른 계정 패스키 지우기 → 403: `api/passkeys.js` L48
 - 이미 쓴 질문 → 401: `api/login-verify.js` L19

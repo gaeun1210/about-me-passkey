@@ -1,6 +1,6 @@
 // [비공개 자료 조회] 패스키로 들어온 사람에게, 그 사람 자신의 자료만 돌려줍니다.
 //  - 로그인 안 함 → 401
-//  - 다른 계정의 항목 ID로 읽기·지우기 → 403
+//  - 다른 계정의 항목 ID로 읽기·고치기·지우기 → 403
 //  - 주소나 본문에 다른 계정 이름을 적어도 → 무시하고 "내 자료"만 돌려줌
 // 누구의 자료인지는 오직 세션(서버가 준 쿠키)으로만 정합니다. 요청에 적힌 계정 이름은 믿지 않습니다.
 import { handler, send, readJson, query, requireSession, rateLimit } from '../lib/http.js';
@@ -8,7 +8,7 @@ import { store, keys } from '../lib/store.js';
 import { newItemId } from '../lib/items.js';
 import { AuthError } from '../lib/webauthn.js';
 
-export default handler(['GET', 'POST', 'DELETE'], async (req, res) => {
+export default handler(['GET', 'POST', 'PATCH', 'DELETE'], async (req, res) => {
   await rateLimit(req, 'private', 120, 60);
   const { session } = await requireSession(req);
   const me = session.username;
@@ -47,6 +47,21 @@ export default handler(['GET', 'POST', 'DELETE'], async (req, res) => {
       ok: true, owner: me, count: items.length, added: item,
       ...(Object.keys(ignored).length ? { ignoredParams: ignored, note: '본문에 적힌 계정 이름은 무시하고 내 공간에 저장했습니다' } : {}),
     });
+  }
+
+  if (req.method === 'PATCH') {
+    // 고치기: 내 목록에 있는 항목만, 제목과 내용만 바꿉니다
+    const body = await readJson(req);
+    const item = items.find((i) => i.id === q.item);
+    if (!q.item || !item) throw new AuthError(403, 'NOT_YOURS', '내 자료가 아닙니다. 다른 계정의 항목은 고칠 수 없습니다');
+    const title = String(body.title || '').trim().slice(0, 60);
+    const text = String(body.body || '').trim().slice(0, 500);
+    if (!title) throw new AuthError(400, 'EMPTY', '제목을 적어 주세요');
+    item.title = title;
+    item.body = text;
+    item.updatedAt = new Date().toISOString();
+    await store.set(keys.items(me), items);
+    return send(res, 200, { ok: true, owner: me, count: items.length, updated: item });
   }
 
   // DELETE
