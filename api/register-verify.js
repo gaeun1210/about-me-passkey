@@ -36,7 +36,7 @@ export default handler(['POST'], async (req, res) => {
     if (n > MAX_ACCOUNTS) { await store.decr(keys.accountCount()); throw new AuthError(403, 'SIGNUP_CLOSED', `새 계정 만들기는 닫혀 있습니다 (계정은 ${MAX_ACCOUNTS}개까지)`); }
     const created = await store.set(keys.user(pending.username), { username: pending.username, userId: pending.userId, createdAt: now }, { onlyIfNew: true });
     if (!created) { await store.decr(keys.accountCount()); throw new AuthError(409, 'USERNAME_TAKEN', '그 사이에 같은 이름의 계정이 생겼습니다'); }
-    await store.set(keys.items(pending.username), seedItems(pending.username));
+    await store.set(keys.items(pending.username), seedItems(n)); // 첫 계정=owner 내용, 둘째=guest 내용
   }
 
   const transports = Array.isArray(credential.response.transports)

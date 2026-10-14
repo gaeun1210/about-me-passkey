@@ -279,7 +279,7 @@
         h('div', { class: 'pv-top' },
           h('div', {}, h('h3', {}, `🔓 ${priv.data.owner} 님의 공간`), h('span', { class: 'pv-fp' }, `세션 지문 ${state.fp || ''} · 세션 값 자체는 HttpOnly 쿠키라 화면에 나오지 않아요`)),
           h('button', { class: 'pv-btn ghost', type: 'button', onclick: logout }, '로그아웃')),
-        h('p', {}, `비공개 항목 ${priv.data.count}개 · 아래 내용은 모두 만들어 넣은 예시입니다 (실제 개인정보 아님).`),
+        h('p', {}, `비공개 항목 ${priv.data.count}개 · 아래 내용은 과제용으로 작성한 메모입니다 (연락처·신분증 번호 같은 개인정보 없음).`),
         h('div', { class: 'pv-items' }, items),
         h('details', { class: 'pv-new' }, h('summary', {}, '항목 추가하기'),
           h('div', { class: 'pv-row' }, h('label', { class: 'pv-field' }, h('span', {}, '제목'), title)),
@@ -329,7 +329,7 @@
           btn('실행', async () => {
             const r = await fetch('/', { credentials: 'omit', cache: 'no-store' });
             const html = await r.text();
-            const words = ['준비 중인 프로젝트', '지원해 보고 싶은 곳', '이번 주 회고', '(만든 예시)'];
+            const words = ['느린 우체국', '지원해 보고 싶은 곳', 'ALEPH 과제 회고', '오늘의 감사'];
             const found = words.filter((w) => html.includes(w));
             const start = html.indexOf('<div id="pv-app"');
             record({ label: '[검증②] 로그인 없이 받은 첫 화면 HTML 검사', method: 'GET', path: '/', cookie: '쿠키를 일부러 보내지 않음', request: null, status: r.status,
