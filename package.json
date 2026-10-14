@@ -1,0 +1,11 @@
+{
+  "name": "about-me-passkey",
+  "version": "1.0.0",
+  "private": true,
+  "description": "과제 1 소개 페이지에 패스키로 잠근 비공개 공간을 붙인 과제 8",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {}
+}

@@ -34,11 +34,12 @@ section{position:relative;padding:68px 0}.head{margin-bottom:25px}.head h2{margi
 @media(max-width:900px){.hero,.cards,.grid2{grid-template-columns:1fr}.hero-visual{min-height:360px}.timeline{grid-template-columns:1fr 1fr}.status{grid-template-columns:1fr;gap:10px}.status ul{margin-top:4px}}@media(max-width:640px){.wrap{width:calc(100% - 24px)}nav{padding:14px 0;align-items:flex-start}.nav{gap:10px}.hero{padding:42px 0 50px;gap:20px}.hero-visual{min-height:310px}.photo-main{inset:14px 14px 28px 14px}.sticker.three{right:0}section{padding:46px 0}.timeline{grid-template-columns:1fr}h1{font-size:2.35rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.card:hover{transform:none}}
 </style>
+<link rel="stylesheet" href="/private.css">
 </head>
 <body>
 <a class="skip" href="#main">본문으로 바로가기</a>
 <header><div class="wrap">
-<nav aria-label="주요 메뉴"><div class="brand">ABOUT ME</div><div class="nav"><a href="#strengths">Strengths</a><a href="#journey">Journey</a><a href="#about">About</a><a href="#public">공개 범위</a></div></nav>
+<nav aria-label="주요 메뉴"><div class="brand">ABOUT ME</div><div class="nav"><a href="#strengths">Strengths</a><a href="#journey">Journey</a><a href="#about">About</a><a href="#public">공개 범위</a><a href="#private" class="nav-private">🔒 나만의 공간</a></div></nav>
 <div class="hero"><div>
 <div class="eyebrow">ONE PAGE INTRODUCTION · AI INFRA SECURITY</div>
 <h1>사람을 대하는<br><span>마음은 진심으로,</span><br>새로운 배움에는<br><span>적극적으로.</span></h1>
@@ -65,6 +66,15 @@ section{position:relative;padding:68px 0}.head{margin-bottom:25px}.head h2{margi
 
 <section id="public" class="section-sand"><div class="wrap"><div class="public-intro"><div class="section-mark">04 · PUBLIC SCOPE <span></span></div><div class="head"><h2>공개 범위</h2><p>온라인 포트폴리오에서는 보여주어도 되는 정보와 공개하지 않을 정보를 구분했습니다.</p></div><div class="public-grid"><div class="public-box public-open"><div class="public-kicker">OPEN</div><h3>공개합니다</h3><ul><li>학습 방향과 관심 분야</li><li>경험에서 드러난 업무 방식</li><li>학습·자격 관련 공개 가능한 성과</li></ul><span class="public-symbol">↗</span></div><div class="public-box public-lock"><div class="public-kicker">PRIVATE</div><h3>공개하지 않습니다</h3><ul><li>실명·개인 연락처</li><li>얼굴 사진·개인 식별 정보</li><li>계정 비밀번호·API Key 등 비밀값</li></ul><span class="public-symbol">⌁</span></div></div></div></div></section>
 
+<!-- ===== 과제 8: 여기부터 비공개 영역 (위쪽 01~04는 과제 1 내용 그대로) ===== -->
+<div class="pv-boundary" role="separator" aria-label="공개 영역과 비공개 영역의 경계"><div class="wrap"><span class="pv-boundary-line"></span><span class="pv-boundary-badge">🔒 여기부터 비공개 영역 · 위는 누구나, 아래는 패스키로 들어간 본인만</span><span class="pv-boundary-line"></span></div></div>
+<section id="private" class="section-private" aria-labelledby="private-title"><div class="wrap">
+<div class="section-mark pv-mark">05 · PRIVATE SPACE <span></span></div>
+<div class="head"><h2 id="private-title">나만의 공간</h2><p>비밀번호 없이 패스키로만 열립니다. 이 영역의 내용은 페이지 소스에 들어 있지 않고, 패스키로 들어온 뒤에 서버가 보내 줍니다.</p></div>
+<div id="pv-app" aria-live="polite"><noscript><p class="pv-msg">이 공간은 자바스크립트가 켜져 있어야 열 수 있습니다.</p></noscript></div>
+<details id="pv-lab" class="pv-lab"><summary>검증 도구 <small>과제 확인용 요청·응답 기록 남기기</small></summary><div id="pv-lab-body"></div></details>
+</div></section>
+
 </main>
 <footer><div class="wrap">About Me · AI Infrastructure Security<br><span class="note">이 페이지는 실제 경험과 현재 학습 내용을 바탕으로 구성했습니다.</span><div class="photo-credit">사진: Pexels 무료 사진 활용 · Tima Miroshnichenko</div></div></footer>
 <script>
@@ -77,5 +87,6 @@ document.querySelectorAll(".card button").forEach(function(button){
   });
 });
 </script>
+<script src="/private.js" defer></script>
 </body>
 </html>
