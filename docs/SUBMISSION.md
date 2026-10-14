@@ -2,7 +2,7 @@
 
 > ✏️ 표시가 있는 곳만 직접 채우면 됩니다. 나머지는 실제 코드와 맞춰 미리 적어 두었습니다.
 
-- **결과물 주소**: ✏️ https://about-me-passkey.vercel.app (Vercel에서 받은 실제 주소로 바꾸기)
+- **결과물 주소**: https://about-me-passkey-five.vercel.app
 - **소스 주소**: https://github.com/gaeun1210/about-me-passkey
 - 비공개 공간의 내용은 이 과제를 위해 **만들어 넣은 메모**입니다(owner: 느린 우체국 앱 아이디어, 공개된 채용 정보를 보고 적은 지원 희망 목록, 과제 회고 / guest: 감사 한 줄). 실제 연락처·신분증 번호 같은 개인정보는 없고, 실제 지원 내역도 아닙니다. 계정 이름도 별명(owner, guest)을 썼습니다. 저장소 접속 정보(비밀값)는 Vercel 환경변수에만 있고 소스·제출문 어디에도 없습니다.
 
