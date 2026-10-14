@@ -1,16 +1,14 @@
 // [패스키 목록·삭제] 내 계정의 패스키만 보고 지울 수 있습니다.
 //  - 남의 패스키 ID로 지우기 → 403
 //  - 마지막 하나는 지울 수 없음 → 409 (지우면 이 계정에 들어갈 방법이 사라지기 때문)
-import { handler, send, query, requireSession } from '../lib/http.js';
+//  - 지우면 지금 이 화면을 뺀 그 계정의 다른 세션을 모두 끊음 (잃어버린 기기에 열려 있던 세션까지)
+import { handler, send, query, requireSession, endOtherSessions } from '../lib/http.js';
 import { store, keys } from '../lib/store.js';
 import { AuthError } from '../lib/webauthn.js';
 
-const ALG = { '-7': 'ES256', '-8': 'EdDSA', '-257': 'RS256' };
-
 async function myPasskeys(username) {
-  const ids = await store.smembers(keys.userCreds(username));
   const list = [];
-  for (const id of ids) {
+  for (const id of await store.smembers(keys.userCreds(username))) {
     const c = await store.get(keys.cred(id));
     if (c) list.push(c);
   }
@@ -24,16 +22,16 @@ function view(c) {
     storage: c.storage,
     createdAt: c.createdAt,
     lastUsedAt: c.lastUsedAt,
-    algorithm: ALG[c.alg],
+    algorithm: c.algorithm,
     publicKeyPem: c.publicKeyPem, // 공개키: 보여 줘도 안전한 값
     aaguid: c.aaguid,
-    synced: c.backupEligible ? '여러 기기에 동기화 가능' : '이 기기에만 있음',
+    synced: c.multiDevice ? '여러 기기에 동기화 가능' : '이 기기에만 있음',
     transports: c.transports,
   };
 }
 
 export default handler(['GET', 'DELETE'], async (req, res) => {
-  const { session } = await requireSession(req);
+  const { sid, session } = await requireSession(req);
   const me = session.username;
 
   if (req.method === 'GET') {
@@ -55,5 +53,10 @@ export default handler(['GET', 'DELETE'], async (req, res) => {
   }
   await store.del(keys.cred(id));
   await store.srem(keys.userCreds(me), id);
-  send(res, 200, { ok: true, owner: me, removed: { id, name: target.name }, remaining: list.length - 1, note: '서버에서 공개키를 지웠습니다. 기기에 남은 패스키로는 이제 들어올 수 없습니다.' });
+  const ended = await endOtherSessions(me, sid);
+  send(res, 200, {
+    ok: true, owner: me, removed: { id, name: target.name }, remaining: list.length - 1,
+    endedOtherSessions: ended,
+    note: '서버에서 공개키를 지웠습니다. 기기에 남은 패스키로는 이제 들어올 수 없고, 다른 기기에 열려 있던 세션도 모두 끊었습니다.',
+  });
 });

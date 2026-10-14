@@ -61,8 +61,8 @@
       res = await fetch(path, {
         method,
         credentials: withCookie ? 'same-origin' : 'omit',
-        headers: body ? { 'Content-Type': 'application/json' } : {},
-        body: body ? JSON.stringify(body) : undefined,
+        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+        body: method === 'GET' ? undefined : JSON.stringify(body || {}),
       });
       data = await res.json().catch(() => ({}));
     } catch (e) {
@@ -100,7 +100,7 @@
     const r = cred.response;
     return {
       id: cred.id, rawId: toB64u(cred.rawId), type: cred.type,
-      authenticatorAttachment: cred.authenticatorAttachment || null,
+      authenticatorAttachment: cred.authenticatorAttachment || undefined,
       response: {
         clientDataJSON: toB64u(r.clientDataJSON),
         attestationObject: toB64u(r.attestationObject),
@@ -113,7 +113,7 @@
     const r = cred.response;
     return {
       id: cred.id, rawId: toB64u(cred.rawId), type: cred.type,
-      authenticatorAttachment: cred.authenticatorAttachment || null,
+      authenticatorAttachment: cred.authenticatorAttachment || undefined,
       response: {
         clientDataJSON: toB64u(r.clientDataJSON),
         authenticatorData: toB64u(r.authenticatorData),
@@ -335,16 +335,19 @@
             record({ label: '[검증②] 로그인 없이 받은 첫 화면 HTML 검사', method: 'GET', path: '/', cookie: '쿠키를 일부러 보내지 않음', request: null, status: r.status,
               response: { 'HTML 길이': html.length, '찾아본 비공개 문구': words, '발견된 비공개 문구': found.length ? found : '없음 (0건)', '비공개 자리의 HTML': html.slice(start, html.indexOf('</div>', start) + 6) } });
           })),
-        test('③ 질문 값이 매번 다른지', '등록용 질문 3번, 로그인용 질문 3번을 받아 나란히 적습니다. (등록 질문은 받은 뒤 바로 취소해서 아무것도 저장되지 않음)',
+        test('③ 질문 값이 매번 다른지', '로그인용 질문 3번(들어와 있으면 등록용 질문 3번도)을 받아 나란히 적습니다. 등록용 질문은 받은 뒤 바로 취소해서 아무것도 저장되지 않습니다.',
           btn('실행', async () => {
             const regC = [], logC = [];
-            for (let i = 0; i < 3; i++) {
-              const r = await api('POST', '/api/register-options', { username: 'challenge-check' }, { silent: true });
-              if (r.data.publicKey) { regC.push(r.data.publicKey.challenge); await api('POST', '/api/register-cancel', { challenge: r.data.publicKey.challenge }, { silent: true }); }
+            if (state.loggedIn) {
+              for (let i = 0; i < 3; i++) {
+                const r = await api('POST', '/api/register-options', {}, { silent: true });
+                if (r.data.publicKey) { regC.push(r.data.publicKey.challenge); await api('POST', '/api/register-cancel', { challenge: r.data.publicKey.challenge }, { silent: true }); }
+              }
             }
             for (let i = 0; i < 3; i++) { const r = await api('POST', '/api/login-options', null, { silent: true }); if (r.data.publicKey) logC.push(r.data.publicKey.challenge); }
-            record({ label: '[검증③] 질문(challenge) 값 비교', method: 'POST', path: '/api/register-options ×3, /api/login-options ×3', cookie: '-', request: null, status: 200,
-              response: { 등록용질문: regC, 로그인용질문: logC, '모두 서로 다른가': new Set([...regC, ...logC]).size === regC.length + logC.length ? '예 (6개 모두 다름)' : '아니오' } });
+            const all = [...regC, ...logC];
+            record({ label: '[검증③] 질문(challenge) 값 비교', method: 'POST', path: (regC.length ? '/api/register-options ×3, ' : '') + '/api/login-options ×3', cookie: '-', request: null, status: 200,
+              response: { 등록용질문: regC.length ? regC : '들어와 있을 때 다시 누르면 함께 기록됩니다', 로그인용질문: logC, '모두 서로 다른가': new Set(all).size === all.length ? `예 (${all.length}개 모두 다름)` : '아니오' } });
           })),
         test('④ 이미 쓴 질문으로 다시 로그인', '마지막으로 성공한 로그인 요청 본문을 그대로 한 번 더 보냅니다. 거절되어야 합니다.',
           btn('실행', async () => {

@@ -3,12 +3,13 @@
 //  - 다른 계정의 항목 ID로 읽기·지우기 → 403
 //  - 주소나 본문에 다른 계정 이름을 적어도 → 무시하고 "내 자료"만 돌려줌
 // 누구의 자료인지는 오직 세션(서버가 준 쿠키)으로만 정합니다. 요청에 적힌 계정 이름은 믿지 않습니다.
-import { handler, send, readJson, query, requireSession } from '../lib/http.js';
+import { handler, send, readJson, query, requireSession, rateLimit } from '../lib/http.js';
 import { store, keys } from '../lib/store.js';
 import { newItemId } from '../lib/items.js';
 import { AuthError } from '../lib/webauthn.js';
 
 export default handler(['GET', 'POST', 'DELETE'], async (req, res) => {
+  await rateLimit(req, 'private', 120, 60);
   const { session } = await requireSession(req);
   const me = session.username;
   const q = query(req);
